@@ -1025,6 +1025,14 @@
                 
                 if (response.ok) {
                     rsvpForm.style.display = 'none';
+                    
+                    const successMsg = rsvpSuccess.querySelectorAll('p')[1];
+                    if (attendance === 'no') {
+                        successMsg.innerHTML = 'Tu respuesta ha sido recibida.<br>¡Te extrañaremos mucho!';
+                    } else {
+                        successMsg.innerHTML = 'Tu respuesta ha sido recibida con mucho amor.<br>¡Nos vemos en la despedida!';
+                    }
+                    
                     rsvpSuccess.classList.add('show');
                 } else {
                     alert('Hubo un error al enviar tu respuesta. Por favor intenta de nuevo.');

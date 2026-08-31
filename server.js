@@ -49,6 +49,9 @@ const writeData = async (data) => {
     }
 };
 
+// Google Apps Script URL
+const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxqGhlM-iMBIl4J6Kqv5CXU_LE7T3STYDo_FDp-BTaM_HD9a1XPLrU83527Pqw0icaG/exec';
+
 // Endpoint to receive RSVP
 app.post('/api/rsvp', async (req, res) => {
     const { name, guests, attendance, message } = req.body;
@@ -57,20 +60,36 @@ app.post('/api/rsvp', async (req, res) => {
         return res.status(400).json({ error: 'Nombre y asistencia son requeridos.' });
     }
 
-    const newRsvp = {
-        id: Date.now().toString(),
-        name,
-        guests: parseInt(guests) || 0,
-        attendance,
-        message: message || '',
-        timestamp: new Date().toISOString()
-    };
+    try {
+        // Enviar a Google Sheets
+        const response = await fetch(GOOGLE_SHEET_URL, {
+            method: 'POST',
+            body: JSON.stringify({ name, guests, attendance, message })
+        });
+        
+        if (response.ok) {
+            // (Opcional) Aún lo guardamos localmente por si acaso
+            const newRsvp = {
+                id: Date.now().toString(),
+                name,
+                guests: parseInt(guests) || 0,
+                attendance,
+                message: message || '',
+                timestamp: new Date().toISOString()
+            };
+            const rsvps = await readData();
+            rsvps.push(newRsvp);
+            await writeData(rsvps);
 
-    const rsvps = await readData();
-    rsvps.push(newRsvp);
-    await writeData(rsvps);
-
-    res.status(201).json({ success: true, rsvp: newRsvp });
+            res.status(201).json({ success: true });
+        } else {
+            console.error("Error from Google Sheets:", response.statusText);
+            res.status(500).json({ error: 'Error al guardar en Google Sheets' });
+        }
+    } catch (error) {
+        console.error("Error sending to Google Sheets:", error);
+        res.status(500).json({ error: 'Error de red' });
+    }
 });
 
 // Endpoint to get all RSVPs (for the Agenda page)

@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agenda de Asistencia — Sofía & Javier</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --blush: #f8e5e5;
+            --blush-deep: #e8c5c5;
+            --gold: #c9a961;
+            --gold-light: #e0c887;
+            --cream: #faf6f0;
+            --cream-deep: #f0e6d8;
+            --rose: #b76e79;
+            --rose-deep: #8b4a55;
+            --text-dark: #4a3b3b;
+            --text-soft: #7a6a6a;
+            --white: rgba(255, 255, 255, 0.85);
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--text-dark);
+            background: linear-gradient(135deg, var(--cream) 0%, var(--blush) 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 1rem;
+        }
+
+        /* ===== FLOATING PETALS BACKGROUND ===== */
+        .petals-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .petal {
+            position: absolute;
+            top: -50px;
+            font-size: 1.5rem;
+            opacity: 0;
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-50px) translateX(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(105vh) translateX(100px) rotate(360deg); opacity: 0; }
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1 {
+            font-family: 'Playfair Display', serif;
+            color: var(--rose-deep);
+            font-size: clamp(2.5rem, 5vw, 3.5rem);
+            margin-bottom: 0.5rem;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            animation: fadeInDown 1s ease-out;
+        }
+        
+        .subtitle {
+            font-family: 'Great Vibes', cursive;
+            font-size: 2rem;
+            color: var(--gold);
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== GLASSMORPHISM CONTAINER ===== */
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 1100px;
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 20px 50px rgba(183, 110, 121, 0.15);
+            animation: fadeInScale 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInScale {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* ===== STATS SUMMARY ===== */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .summary-box {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.5));
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(139, 74, 85, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s ease;
+        }
+
+        .summary-box:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(139, 74, 85, 0.15);
+        }
+
+        .summary-number {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            color: var(--rose-deep);
+            font-weight: 600;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            background: -webkit-linear-gradient(135deg, var(--rose-deep), var(--gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-soft);
+            font-weight: 500;
+        }
+
+        /* ===== TABLE DESIGN ===== */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            background: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1.2rem 1.5rem;
+        }
+
+        th {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.95rem;
+            color: var(--rose-deep);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background-color: var(--cream-deep);
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+
+        td {
+            border-bottom: 1px solid var(--blush);
+            color: var(--text-dark);
+            font-size: 1.1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tbody tr {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        tbody tr:hover {
+            background-color: var(--cream);
+            transform: scale(1.01);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 1;
+            border-radius: 8px;
+        }
+        
+        tbody tr:hover td {
+            border-bottom-color: transparent;
+        }
+
+        .name-cell {
+            font-weight: 600;
+            color: var(--rose-deep);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .status-yes {
+            background-color: rgba(46, 125, 50, 0.1);
+            color: #2e7d32;
+            border: 1px solid rgba(46, 125, 50, 0.2);
+        }
+
+        .status-no {
+            background-color: rgba(198, 40, 40, 0.1);
+            color: #c62828;
+            border: 1px solid rgba(198, 40, 40, 0.2);
+        }
+
+        .message-cell {
+            font-style: italic;
+            color: var(--text-soft);
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        .date-cell {
+            font-size: 0.9rem;
+            color: #a09393;
+            white-space: nowrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--blush-deep);
+        }
+
+        .empty-text {
+            font-size: 1.2rem;
+            color: var(--text-soft);
+            font-style: italic;
+        }
+
+        /* Loader */
+        .loader {
+            border: 3px solid var(--blush);
+            border-top: 3px solid var(--rose);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 3rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            .summary {
+                gap: 1rem;
+            }
+            .summary-box {
+                padding: 1rem;
+            }
+            th, td {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== FLOATING PETALS ===== -->
+    <div class="petals-container" id="petalsContainer"></div>
+
+    <h1>Lista de Invitados</h1>
+    <div class="subtitle">Despedida de Soltera de Sofía</div>
+
+    <div class="container">
+        
+        <div class="summary">
+            <div class="summary-box">
+                <div class="summary-number" id="totalYes">0</div>
+                <div class="summary-label">Asistirán</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-number" id="totalGuests">0</div>
+                <div class="summary-label">Acompañantes Extras</div>
+            </div>
+            <div class="summary-box">
+                <div class="summary-number" id="totalNo">0</div>
+                <div class="summary-label">No Asistirán</div>
+            </div>
+        </div>
+
+        <div id="loader" class="loader"></div>
+
+        <div class="table-wrapper" id="tableWrapper" style="display: none;">
+            <table id="rsvpsTable">
+                <thead>
+                    <tr>
+                        <th>Invitado</th>
+                        <th>Estado</th>
+                        <th>Acompañantes</th>
+                        <th>Mensaje</th>
+                        <th>Fecha de Conf.</th>
+                    </tr>
+                </thead>
+                <tbody id="rsvpsBody">
+                    <!-- Data will be loaded here via JS -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="emptyMessage" class="empty-state" style="display: none;">
+            <span class="empty-icon">💌</span>
+            <span class="empty-text">Aún no hay respuestas registradas en la lista de invitados.</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== FLOATING PETALS (Same as index.html) =====
+        const petalsContainer = document.getElementById('petalsContainer');
+        const petalEmojis = ['🌸', '🌷', '💮', '🏵️', '✨'];
+
+        function createPetal() {
+            const petal = document.createElement('div');
+            petal.classList.add('petal');
+            petal.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+            petal.style.left = Math.random() * 100 + '%';
+            petal.style.fontSize = (Math.random() * 1 + 0.8) + 'rem';
+            petal.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            petal.style.animationDelay = Math.random() * 2 + 's';
+            petalsContainer.appendChild(petal);
+
+            setTimeout(() => {
+                petal.remove();
+            }, 15000);
+        }
+
+        setInterval(createPetal, 1000);
+        for (let i = 0; i < 6; i++) {
+            setTimeout(createPetal, i * 400);
+        }
+
+        // ===== LOAD DATA =====
+        async function loadRSVPs() {
+            try {
+                const response = await fetch('/api/rsvps');
+                const data = await response.json();
+                
+                const tbody = document.getElementById('rsvpsBody');
+                const emptyMsg = document.getElementById('emptyMessage');
+                const tableWrapper = document.getElementById('tableWrapper');
+                const loader = document.getElementById('loader');
+                
+                loader.style.display = 'none';
+
+                let totalYes = 0;
+                let totalNo = 0;
+                let totalGuests = 0;
+
+                if (!data || data.length === 0) {
+                    emptyMsg.style.display = 'flex';
+                    return;
+                }
+
+                tableWrapper.style.display = 'block';
+
+                data.reverse().forEach((rsvp, index) => {
+                    if (rsvp.attendance === 'yes') {
+                        totalYes++;
+                        totalGuests += rsvp.guests;
+                    } else {
+                        totalNo++;
+                    }
+
+                    const tr = document.createElement('tr');
+                    tr.style.animation = `fadeInUp 0.5s ease-out ${index * 0.1}s both`;
+                    
+                    const date = new Date(rsvp.timestamp).toLocaleDateString('es-MX', {
+                        day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+                    });
+
+                    const isYes = rsvp.attendance === 'yes';
+                    const statusClass = isYes ? 'status-yes' : 'status-no';
+                    const statusText = isYes ? 'Sí asistirá' : 'No asistirá';
+                    const guestsText = isYes ? (rsvp.guests > 0 ? `+${rsvp.guests}` : 'Ninguno') : '-';
+
+                    tr.innerHTML = `
+                        <td class="name-cell">${rsvp.name}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td style="text-align: center;">${guestsText}</td>
+                        <td class="message-cell">${rsvp.message || '<span style="color:#d3d3d3">-</span>'}</td>
+                        <td class="date-cell">${date}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+
+                // Animación de los números
+                animateValue("totalYes", 0, totalYes, 1000);
+                animateValue("totalNo", 0, totalNo, 1000);
+                animateValue("totalGuests", 0, totalGuests, 1000);
+
+            } catch (error) {
+                console.error('Error fetching RSVPs:', error);
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('emptyMessage').innerHTML = '<span class="empty-text">Error al cargar los datos. Por favor, recarga la página.</span>';
+                document.getElementById('emptyMessage').style.display = 'flex';
+            }
+        }
+
+        // Animación suave para contadores
+        function animateValue(id, start, end, duration) {
+            if (start === end) {
+                document.getElementById(id).textContent = end;
+                return;
+            }
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                document.getElementById(id).textContent = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+
+        // Load data on start
+        setTimeout(loadRSVPs, 500); // Pequeño retraso para que se vea el loader
+    </script>
+</body>
+</html>

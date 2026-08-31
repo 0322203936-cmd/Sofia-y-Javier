@@ -912,7 +912,7 @@
                 <label class="form-label" for="message">Mensaje para los novios</label>
                 <textarea id="message" class="form-textarea" placeholder="Escribe tus buenos deseos..."></textarea>
             </div>
-            <button type="submit" class="btn-submit">Confirmar Asistencia</button>
+            <button type="submit" class="btn-submit">ENVIAR RESPUESTA</button>
         </form>
         <div class="rsvp-success" id="rsvpSuccess">
             <p class="script">¡Gracias!</p>
@@ -1003,10 +1003,39 @@
         const rsvpForm = document.getElementById('rsvpForm');
         const rsvpSuccess = document.getElementById('rsvpSuccess');
 
-        rsvpForm.addEventListener('submit', function(e) {
+        rsvpForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            rsvpForm.style.display = 'none';
-            rsvpSuccess.classList.add('show');
+            
+            const submitBtn = rsvpForm.querySelector('.btn-submit');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            const name = document.getElementById('name').value;
+            const guests = document.getElementById('guests').value;
+            const attendance = document.getElementById('attendance').value;
+            const message = document.getElementById('message').value;
+
+            try {
+                const response = await fetch('/api/rsvp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, guests, attendance, message })
+                });
+                
+                if (response.ok) {
+                    rsvpForm.style.display = 'none';
+                    rsvpSuccess.classList.add('show');
+                } else {
+                    alert('Hubo un error al enviar tu respuesta. Por favor intenta de nuevo.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            } catch (error) {
+                alert('Error de red al intentar enviar tu respuesta.');
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
         });
 
         // ===== PARALLAX HERO EFFECT =====

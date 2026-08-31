@@ -1,0 +1,26 @@
+{
+  "entries": [
+    { "path": "architecture/system-architecture" },
+    { "path": "architecture/erp-module-planner" },
+    { "path": "database/database-design" },
+    { "path": "database/database-optimization" },
+    { "path": "backend/api-design" },
+    { "path": "backend/backend-node-patterns" },
+    { "path": "backend/authentication-authorization" },
+    { "path": "backend/background-jobs-automation" },
+    { "path": "frontend/erp-ui-components" },
+    { "path": "frontend/state-management-erp" },
+    { "path": "frontend/responsive-layout-system" },
+    { "path": "quality/testing-strategy" },
+    { "path": "quality/error-handling-logging" },
+    { "path": "quality/ci-cd-deployment" },
+    { "path": "quality/code-quality-standards" },
+    { "path": "data/reporting-engine" },
+    { "path": "data/data-import-export" },
+    { "path": "data/audit-trail" },
+    { "path": "data/business-logic-patterns" },
+    { "path": "frontend/angular-erp-components" },
+    { "path": "frontend/angular-state-signals" },
+    { "path": "frontend/angular-testing" }
+  ]
+}
